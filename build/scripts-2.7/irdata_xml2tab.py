@@ -127,6 +127,7 @@ class PSIParser(EmptyElementParser):
 
         # Go through the path from the deepest element name to the root, looking
         # for scope names.
+        print >>sys.stderr, "Scoping "
 
         for part in self.current_path[-1::-1]:
             if part in self.scopes.values():
@@ -227,7 +228,7 @@ class PSIParser(EmptyElementParser):
         # entry/experimentList/experimentDescription
         # -> experimentDescription (element), experimentList (parent),
         #    entry (property), None (section)
-
+        
         element, parent, property, section = map(lambda x, y: x or y, self.current_path[-1:-5:-1], [None] * 4)
 
         # Get the element's attributes.

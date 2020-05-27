@@ -47,7 +47,26 @@ fi
 # Tab character used in the sed command.
 TAB=`printf '\t'`
 
-  sed "s/${TAB}|${TAB}/${TAB}/g;s/${TAB}|$//;" "$FILENAME" \
-> "$DATADIR/$OUTFILE"
+sed "s/${TAB}|${TAB}/${TAB}/g;s/${TAB}|$//;" "$FILENAME" > "$DATADIR/tmp1.txt"
+  
+# In mny cases, column 3 is NULL 
+# In many cases, there may be two or more rows that have identical values
+# for columns 1, 2 and 4 and only one row will have a non-NULL value in 
+# column 3.
+# This causes a problem for the import stage which enforces a unique compound key
+# for the taxonomy_names table composed of columns 1,2 and 3.
+# So, remove column 3 entirely (just leaving a TAB) and unique the resulting table
+# such that each row will have a unique compound key
+
+# replace column 3 with an empty value
+awk 'BEGIN{FS="\t"; OFS="";}{ print $1,"\t",$2,"\t","\t",$4}' < $DATADIR/tmp1.txt > $DATADIR/tmp2.txt
+# ensure that each row is unique
+sort -u $DATADIR/tmp2.txt > $DATADIR/$OUTFILE
+#report
+echo "$PROGNAME: Redundant entries in $OUTFILE were removed." 1>&2
+echo "$PROGNAME: Lines in original $OUTFILE." 1>&2
+#wc -l $DATADIR/tmp2.txt
+echo "$PROGNAME: Lines in final $OUTFILE." 1>&2
+#wc -l $DATADIR/$OUTFILE
 
 exit $?

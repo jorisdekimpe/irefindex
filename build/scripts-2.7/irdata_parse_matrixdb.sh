@@ -48,7 +48,8 @@ echo "$FILENAMES" 1>&2
 #save a copy of the original
 for THISFILE in $FILENAMES; do
     ORIGINAL="$THISFILE".original
-    awk 'BEGIN {FS="\t";}{if ($21 == "psi-mi:\"MI:0326\"(protein)"  && $22 == "psi-mi:\"MI:0326\"(protein)") print $0;}' < "$THISFILE" > tmp
+    ##awk 'BEGIN {FS="\t";}{if ($21 == "psi-mi:\"MI:0326\"(protein)"  && $22 == "psi-mi:\"MI:0326\"(protein)") print $0;}' < "$THISFILE" > tmp
+    awk 'BEGIN {FS="\t";}{if ($1 !~ /chebi:/) print $0;}' < "$THISFILE" | awk 'BEGIN {FS="\t";}{if ($2 !~ /chebi:/) print $0;}' > tmp 
     #catch errors - $? means return value of last function
     if [ $? != 0 ]; then
         echo "$PROGNAME: pre-processing of $THISFILE failed." 1>&2

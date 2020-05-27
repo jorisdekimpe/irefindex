@@ -60,7 +60,7 @@ fi
 # Loop over the sources and collect manifest information in a file.
 
   for SOURCE in $SOURCES ; do
-
+      echo "$SOURCE" 1>&2
       # Skip excluded sources.
 
       if isin "$SOURCE" $EXCLUDEDSOURCES ; then
@@ -80,8 +80,9 @@ fi
       DATADIR="$DATA/$SOURCEDIR"
 
       # If a source provides a URL, extract manifest information from the resource.
-
+      echo "$URL $PARSER $FILE $DOWNLOAD_FILES $SOURCEDIR $RELEASE_URL $DATADIR" 1>&2
       if [ "$URL" ]; then
+	  echo "$SOURCE" 1>&2    
           source=$(echo $SOURCE | tr '[:upper:]' '[:lower:]')
           DETAILS="$MANIFESTS/irdata_manifest_$source.txt"
 

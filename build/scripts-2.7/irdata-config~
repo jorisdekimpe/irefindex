@@ -6,12 +6,12 @@
 
 SYSPREFIX=/home/irefindex                                  # system-wide installation root
 EMAIL=alexander.botzki@vib.be               # e-mail address for anonymous FTP logins
-DATABASE=irdata17A                          # database name
-DATA=/data/irdata17                        # user defined data directory location
+DATABASE=irdata16A                          # database name
+DATA=/data/irdata16A                        # user defined data directory location
 WIKIFORMAT=MediaWiki                        # format for generated Wiki pages
 WGET_WAIT=5                                 # time to wait between wget requests
 WGET_ATTEMPTS=5                             # number of attempts to make using wget
-PSQL_OPTIONS="--psql-options -p 5432"       # "--psql-options <psql connection options>"
+PSQL_OPTIONS="--psql-options -p 5433"       # "--psql-options <psql connection options>"
 
 
 
@@ -19,7 +19,7 @@ PSQL_OPTIONS="--psql-options -p 5432"       # "--psql-options <psql connection o
 # Output and publication options.
 # (RELEASE is most likely to need changing.)
 
-RELEASE=17.0                              # iRefIndex release identifier
+RELEASE=16.0                              # iRefIndex release identifier
 
 # Information provided with the iRefScape data.
 # This features the FTP download site for iRefIndex data
@@ -61,8 +61,8 @@ DIP_PASSWORD=Dd8AIwsbwib
 # OPHID_MIRROR and OPHID_RELEASE_URL settings below.
 
 ##FOR 16A added APID
-XMLSOURCES="BIND_TRANSLATION BIOGRID CORUM DIP HURI HPRD INTACT INTCOMPLEX MPACT MPPI OPHID"
-TABSOURCES="MINT MPIDB I2D_IMEX INNATEDB MATRIXDB REACTOME VIRUSHOST UNIPROTPP HPIDB BHF_UCL MBINFO MOLCON QUICKGO APID BAR SPIKE"
+XMLSOURCES="BIND_TRANSLATION BIOGRID CORUM DIP HURI HPRD INTACT INTCOMPLEX MPACT MPPI OPHID SPIKE"
+TABSOURCES="MINT MPIDB I2D_IMEX INNATEDB MATRIXDB REACTOME VIRUSHOST UNIPROTPP HPIDB BHF_UCL MBINFO MOLCON QUICKGO APID"
 OTHERSOURCES="PSI_MI TAXONOMY BIND DIG FLY GENE GENPEPT IPI MMDB PDB REFSEQ UNIPROT YEAST OPHID ATHALIANA"
 # NOTE: To be completed and added below for parsing: SEGUID
 
@@ -75,7 +75,7 @@ OTHERSOURCES="PSI_MI TAXONOMY BIND DIG FLY GENE GENPEPT IPI MMDB PDB REFSEQ UNIP
 # putting a space between each source identifier.
 
 ##for 16A deleted here MINT SPIKE
-EXCLUDEDSOURCES="OPHID APID I2D_IMEX MOLCON"
+EXCLUDEDSOURCES="OPHID HURI APID SPIKE I2D_IMEX MOLCON"
 
 ############################################################
 # Source locations and details.
@@ -117,28 +117,16 @@ APID_IMPORT_TEMPLATE='import_mitab.sql'
 
 ############################################################
 #A_Thaliana
-ATHALIANA_MIRROR='ftp://ftp.ensemblgenomes.org'
-ATHALIANA_RELEASE_URL="$ATHALIANA_MIRROR/pub/plants/release-46/tsv/arabidopsis_thaliana/"
-ATHALIANA_DOWNLOAD_FILES='Arabidopsis_thaliana.TAIR*.uniprot.tsv'
+ATHALIANA_MIRROR='ftp://ftp.ensemblegenomes.org'
+ATHALIANA_RELEASE_URL="$A_THALIANA_MIRROR/pub/plants/release-43/tsv/arabidopsis_thaliana/Arabidopsis_thaliana.TAIR10.43.uniprot.tsv.gz"
+ATHALIANA_DOWNLOAD_FILES='Arabidopsis_thaliana.TAIR*.uniprot.tsv.gz'
 
 ATHALIANA_DIR_NAME="ATHALIANA"
 ATHALIANA_OTHER_FILE_PATTERN='*.tsv'
-ATHALIANA_PARSER='irdata_parse_A_thaliana.sh'
+ATHALIANA_PARSER='irdata_parse_A_thaliana2.py'
 #which import template?
 ATHALIANA_SCHEMA='athaliana'
 ############################################################
-#BAR
-BAR_MIRROR='http://bar.utoronto.ca:9090'
-BAR_RELEASE_URL="$BAR_MIRROR/psicquic/webservices/current/search/query/*"
-BAR_USE_WEBSERVICES="TRUE"
-BAR_DOWNLOAD_FILES="bar_psicquic.txt"
-
-BAR_DIR_NAME="BAR"
-BAR_OTHER_FILE_PATTERN='*.txt'
-BAR_PARSER='irdata_parse_bar.sh'
-BAR_IMPORT_TEMPLATE='import_mitab.sql'
-############################################################
-
 # BHF_UCL
 
 BHF_UCL_MIRROR='http://www.ebi.ac.uk'
@@ -164,7 +152,7 @@ BHF_UCL_IMPORT_TEMPLATE='import_mitab.sql'
 BIND_DOWNLOAD_FILES='20060525*.txt'
 BIND_MIRROR='file://'
 
-BIND_RELEASE_URL="$BIND_MIRROR/home/irefindex/data/ian/bond.unleashedinformatics.com/downloads/data/BIND/data/bindflatfiles/bindindex/"
+BIND_RELEASE_URL="$BIND_MIRROR/data/ian/bond.unleashedinformatics.com/downloads/data/BIND/data/bindflatfiles/bindindex/"
 BIND_DIR_NAME="BIND"
 BIND_OTHER_FILE_PATTERN='*.txt'
 BIND_PARSER='irdata_parse_bind.sh'
@@ -212,36 +200,12 @@ CORUM_XML_FILE_PATTERN='*.xml'
 ############################################################
 # DIG
 # do we have this file?
-BIOGRID_MIRROR='https://thebiogrid.org'
-BIOGRID_DOWNLOAD_FILES="BIOGRID-ALL-3.5.184.psi25.zip"
-#https://downloads.thebiogrid.org/Download/BioGRID/Release-Archive/BIOGRID-3.5.171/BIOGRID-ALL-3.5.171.psi25.zip
-BIOGRID_RELEASE_URL="https://downloads.thebiogrid.org/Download/BioGRID/Release-Archive/BIOGRID-3.5.184/"
-##BIOGRID_RELEASE_URL="$BIOGRID_MIRROR/downloads/archives/Release%20Archive/BIOGRID-$BIOGRID_VERSION/"
-BIOGRID_DIR_NAME="BioGRID"
-BIOGRID_XML_FILE_PATTERN='*.xml'
-
-############################################################
-# CORUM
-# OK
-#CORUM_DOWNLOAD_FILES="allComplexes.psimi.zip"
-CORUM_DOWNLOAD_FILES="allComplexes.xml.zip"
-#CORUM_MIRROR='http://mips.gsf.de'
-CORUM_MIRROR='http://mips.helmholtz-muenchen.de/corum'
-
-CORUM_RELEASE_URL="$CORUM_MIRROR/download/"
-#CORUM_RELEASE_URL="$CORUM_MIRROR/genre/export/sites/default/corum/"
-CORUM_DIR_NAME="CORUM"
-CORUM_XML_FILE_PATTERN='*.xml'
-
-############################################################
-# DIG
-# do we have this file?
 
 DIG_DOWNLOAD_FILES='morbidmap14062010.txt'
 #DIG_DOWNLOAD_FILES='22112010morbidmap.txt'
 DIG_MIRROR='file://'
 
-DIG_RELEASE_URL="$DIG_MIRROR/home/irefindex/data/ian/dig/"
+DIG_RELEASE_URL="$DIG_MIRROR/data/ian/dig/"
 DIG_DIR_NAME="DIG"
 DIG_OTHER_FILE_PATTERN='morbidmap*.txt'
 DIG_PARSER='irdata_parse_dig.sh'
@@ -252,8 +216,8 @@ DIG_SCHEMA='dig'
 # OK - login available
 DIP_DOWNLOAD_SCRIPT='irdata_fetch_dip.sh'
 DIP_HOST='dip.doe-mbi.ucla.edu'
-DIP_DOWNLOAD_FILES="dip20170205.mif25"
-DIP_MIRROR="https://$DIP_HOST"
+#DIP_DOWNLOAD_FILES="dip20130113.mif25.gz"
+DIP_MIRROR="http://$DIP_HOST"
 
 # NOTE: This resource uses obstructive technical measures to make automation
 # NOTE: awkward. Thus, the release URL is only used to access further details
@@ -267,7 +231,7 @@ DIP_DIR_NAME="DIP"
 DIP_XML_FILE_PATTERN='*.mif25 *.mif25.gz'
 
 #DIP_MANIFEST_URL is defined below once the DATA location is known.
-#DIP_MANIFEST_URL  not used anymore
+
 ############################################################
 # Entrez Gene
 # OK
@@ -314,25 +278,26 @@ HPIDB_IMPORT_TEMPLATE='import_mitab.sql'
 
 ############################################################
 # HPRD
-
+# downloaded on my PC - need to move to storage folder!
 HPRD_DOWNLOAD_FILES="HPRD_PSIMI_041310.tar.gz"
 HPRD_MIRROR='file://'
 
 #HPRD_RELEASE_URL="$HPRD_MIRROR/RELEASE9/"
-HPRD_RELEASE_URL="$HPRD_MIRROR/data/irdata17/HPRD"
+HPRD_RELEASE_URL="$HPRD_MIRROR/data/alex/"
 HPRD_DIR_NAME="HPRD"
 HPRD_XML_FILE_PATTERN='PSIMI_XML/*.xml'
 
 
 ############################################################
-# HURI
+# HURI 
 # OK
-HURI_DOWNLOAD_FILES="HuRI.psi"
-HURI_MIRROR='http://interactome-atlas.org'
+HURI_DOWNLOAD_FILES="all_published.psi"
+HURI_MIRROR='http://interactome.baderlab.org'
 
 HURI_RELEASE_URL="$HURI_MIRROR/data/"
 HURI_DIR_NAME="HuRI"
-HURI_OTHER_FILE_PATTERN='*.psi'
+##16A changed psi to tsv
+HURI_OTHER_FILE_PATTERN='*.tsv'
 
 HURI_PARSER='irdata_parse_huri.sh'
 HURI_IMPORT_TEMPLATE='import_mitab.sql'
@@ -351,7 +316,8 @@ I2D_IMEX_OTHER_FILE_PATTERN='*.txt'
 I2D_IMEX_PARSER='irdata_parse_i2dimex.sh'
 I2D_IMEX_IMPORT_TEMPLATE='import_mitab.sql'
 
-#source url for psicquic data#http://www.ebi.ac.uk/Tools/webservices/psicquic/i2d/webservices/current/search/query/*?format=tab27
+#source url for psicquic data
+#http://www.ebi.ac.uk/Tools/webservices/psicquic/i2d/webservices/current/search/query/*?format=tab27
 #testing
 #irdownload I2D_IMEX
 #irdata_parse_i2dimex.sh /storage/data/I2D_IMEX /storage/data/I2D_IMEX/i2dimex_psicquic.txt
@@ -411,7 +377,7 @@ IPI_SCHEMA='ipi'
 #MATRIXDB_DOWNLOAD_FILES="MatrixDB_20120801.xml.zip"
 #MATRIXDB_MIRROR='http://matrixdb.ibcp.fr'
 
-MATRIXDB_DOWNLOAD_FILES="matrixdb_FULL.tab"
+MATRIXDB_DOWNLOAD_FILES="matrixdb_FULL.tab.gz"
 MATRIXDB_MIRROR='http://matrixdb.univ-lyon1.fr'
 
 MATRIXDB_RELEASE_URL="$MATRIXDB_MIRROR/download/"
@@ -501,7 +467,7 @@ MPACT_DOWNLOAD_FILES="mpact-complete.psi25.xml.gz"
 MPACT_MIRROR='file://'
 
 #MPACT_RELEASE_URL="$MPACT_MIRROR/yeast/PPI/"
-MPACT_RELEASE_URL="$MPACT_MIRROR/home/irefindex/data/ian/mpact/"
+MPACT_RELEASE_URL="$MPACT_MIRROR/data/ian/mpact/"
 MPACT_DIR_NAME="MPACT"
 MPACT_XML_FILE_PATTERN='*.xml *.xml.gz'
 
@@ -513,7 +479,7 @@ MPACT_XML_FILE_PATTERN='*.xml *.xml.gz'
 MPIDB_MIRROR='file://'
 MPIDB_DOWNLOAD_FILES="mpidb_psicquic.txt"
 
-MPIDB_RELEASE_URL="$MPIDB_MIRROR/data/irdata17/MPIDB/"
+MPIDB_RELEASE_URL="$MPIDB_MIRROR/data/irdata15A/MPIDB/"
 MPIDB_DIR_NAME="MPIDB"
 MPIDB_OTHER_FILE_PATTERN='mpidb_psicquic.txt'
 MPIDB_PARSER='irdata_parse_mpidb.sh'
@@ -527,7 +493,7 @@ MPPI_DOWNLOAD_FILES="mppi.gz"
 MPPI_MIRROR='file://'
 
 #MPPI_RELEASE_URL="$MPPI_MIRROR/proj/ppi/data/"
-MPPI_RELEASE_URL="$MPPI_MIRROR/home/irefindex/data/ian/mppi/"
+MPPI_RELEASE_URL="$MPPI_MIRROR/data/ian/mppi/"
 MPPI_DIR_NAME="MPPI"
 MPPI_XML_FILE_PATTERN='mppi mppi.gz'
 
@@ -556,10 +522,10 @@ PDB_SCHEMA='pdb'
 ############################################################
 # PSI-MI
 # OK
-PSI_MI_DOWNLOAD_FILES="psi-mi.obo"
-PSI_MI_MIRROR='https://raw.githubusercontent.com/'
+PSI_MI_DOWNLOAD_FILES="psi-mi25.obo"
+PSI_MI_MIRROR='http://psidev.cvs.sourceforge.net'
 
-PSI_MI_RELEASE_URL="$PSI_MI_MIRROR/HUPO-PSI/psi-mi-CV/master/"
+PSI_MI_RELEASE_URL="$PSI_MI_MIRROR/viewvc/psidev/psi/mi/rel25/data/"
 PSI_MI_DIR_NAME="PSI-MI"
 PSI_MI_OTHER_FILE_PATTERN='*.obo'
 PSI_MI_PARSER='irdata_parse_obo.py'
@@ -619,16 +585,16 @@ REFSEQ_SCHEMA='refseq'
 # SPIKE
 
 
-SPIKE_MIRROR='http://spike.cs.tau.ac.il'
-SPIKE_RELEASE_URL="$SPIKE_MIRROR/psicquic-ws/webservices/current/search/query/*"
-SPIKE_USE_WEBSERVICES="TRUE"
-SPIKE_DOWNLOAD_FILES="spike_psicquic.txt"
+SPIKE_MIRROR='http://www.cs.tau.ac.il/'
+SPIKE_RELEASE_URL="$SPIKE_MIRROR/~spike/download/"
+#SPIKE_USE_WEBSERVICES="TRUE"
+SPIKE_DOWNLOAD_FILES="LatestSpikeDB.xml.zip"
 
 SPIKE_DIR_NAME="SPIKE"
-SPIKE_OTHER_FILE_PATTERN='spike_psicquic.txt'
-SPIKE_PARSER='irdata_parse_spike.sh'
-SPIKE_IMPORT_TEMPLATE='import_mitab.sql'
-#SPIKE_XML_FILE_PATTERN='*.xml'
+#SPIKE_OTHER_FILE_PATTERN='spike_psicquic.txt'
+#SPIKE_PARSER='irdata_parse_spike.sh'
+#SPIKE_IMPORT_TEMPLATE='import_mitab.sql'
+SPIKE_XML_FILE_PATTERN='*.xml'
 
 #source url for psicquic data - occassionally check to see if tab27 is supported yet
 #http://spike.cs.tau.ac.il/psicquic-ws/webservices/current/search/query/*
@@ -673,7 +639,7 @@ UNIPROT_RELEASE='current_release'
 
 UNIPROT_RELEASE_URL="$UNIPROT_MIRROR/pub/databases/uniprot/$UNIPROT_RELEASE/knowledgebase/complete/"
 UNIPROT_DIR_NAME="UniProt"
-UNIPROT_OTHER_FILE_PATTERN='*.dat *.fasta.gz *.fasta'
+UNIPROT_OTHER_FILE_PATTERN='*.dat.gz *.dat *.fasta.gz *.fasta'
 UNIPROT_PARSER='irdata_parse_uniprot.sh'
 UNIPROT_SCHEMA='uniprot'
 
@@ -685,13 +651,13 @@ UNIPROT_MANIFEST_FILE='reldate.txt'
 
 ############################################################
 #iENSEMBL A_Thaliana
-#ATHALIANA_MIRROR='ftp://ftp.ensemblegenomes.org'
-#ATHALIANA_RELEASE_URL="$ATHALIANA_MIRROR/pub/plants/release-43/tsv/arabidopsis_thaliana/Arabidopsis_thaliana.TAIR10.43.uniprot.tsv.gz"
-#ATHALIANA_DOWNLOAD_FILES='Arabidopsis_thaliana.TAIR*.uniprot.tsv.gz'
+ATHALIANA_MIRROR='ftp://ftp.ensemblegenomes.org'
+ATHALIANA_RELEASE_URL="$ATHALIANA_MIRROR/pub/plants/release-43/tsv/arabidopsis_thaliana/Arabidopsis_thaliana.TAIR10.43.uniprot.tsv.gz"
+ATHALIANA_DOWNLOAD_FILES='Arabidopsis_thaliana.TAIR*.uniprot.tsv.gz'
 
-#ATHALIANA_DIR_NAME="ATHALIANA"
-#ATHALIANA_OTHER_FILE_PATTERN='*.tsv'
-#ATHALIANA_PARSER='irdata_parse_A_thaliana.sh'
+ATHALIANA_DIR_NAME="ATHALIANA"
+ATHALIANA_OTHER_FILE_PATTERN='*.tsv'
+ATHALIANA_PARSER='irdata_parse_A_thaliana.sh'
 #still need to make parser
 #which import template?
 
@@ -951,4 +917,4 @@ fi
 ############################################################
 # Locations for internal use only.
 
-#DIP_MANIFEST_URL="$DATA/$DIP_DIR_NAME/dip_downloads_response.txt"
+DIP_MANIFEST_URL="$DATA/$DIP_DIR_NAME/dip_downloads_response.txt"

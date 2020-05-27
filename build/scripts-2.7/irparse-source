@@ -166,11 +166,11 @@ for FILEPATTERN in $FILEPATTERNS; do
     HAVEFAILED="${HAVEFAILED}${HAVEFAILED:+ }$FAILED"
 
     # Make sure there are valid files and none explicitly failed.
-
+    
     if [ ! "$HAVEFILES" ] || [ "$FAILED" ]; then
         continue
     fi
-
+    echo "$TOOLS/$PARSER" "$OUTPUTDIR" $FILES 
     if [ ! "$NO_PARSE" ]; then
         if [ "$XMLFILEPATTERN" ]; then
             if ! "$TOOLS/irdata_xml2tab.py" "$OUTPUTDIR" "$SOURCE" $FILES ; then

@@ -36,7 +36,7 @@ fi
 
 DATADIR=$1
 FILENAME=$2
-
+echo "$FILENAME" 1>&2
 if [ ! "$DATADIR" ] || [ ! "$FILENAME" ]; then
     echo "$PROGNAME: A data directory and an input filename or - must be specified." 1>&2
     exit 1
@@ -44,7 +44,7 @@ fi
 
 OUTFILE=`basename "$FILENAME"`
 FILETYPE=${OUTFILE%%.*}
-
+echo "$FILETYPE"
 # Find the last table header marker.
 #this is taken from fly but not necessart since there is not comment, it is just header
 #followed by data
@@ -55,6 +55,7 @@ FILETYPE=${OUTFILE%%.*}
 #END=`grep -ne '^----' "$FILENAME" | tail -n 2 | head -n 1 | cut -d ':' -f 1`
 
 # cat the file and present it to the parser.
+echo "$DATADIR/$OUTFILE" 1>&2 
   cat "$FILENAME" \
 | "$TOOLS/irdata_parse_A_thaliana2.py" "$FILETYPE" --discard-ill-formed \
 > "$DATADIR/$OUTFILE"

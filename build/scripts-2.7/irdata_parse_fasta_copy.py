@@ -82,7 +82,6 @@ class Parser:
                 # >ERL63622.1 hypothetical protein L248_2681 [Lactobacillus shenzhenensis LY-73]
                 #TO DO:If there is no organism known, the line and sequence will be skipped
                 #
-                header_record = re.sub(r'([a-zA-Z])\\',r'\1 ',header_record) 
                 bracketmatch = re.search(r'^(.+\.[0-9])\s(.+)\(\[(.+)\]$', header_record)
                 if bracketmatch:
                     bracketmatch = re.split(r'^(.+\.[0-9])\s(.+)\(\[(.+)\]$', header_record)

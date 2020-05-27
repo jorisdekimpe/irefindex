@@ -55,7 +55,7 @@ fi
 | "$SCRIPTS/irparallel" "\"$TOOLS/irdata_parse_refseq.py\" \"$DATADIR\" {}"
 
 # Concatenate the output data.
-
+echo "$DATADIR cat step" 1>&2 
 cat "$DATADIR"/*_proteins > "$DATADIR/refseq_proteins.txt"
 cat "$DATADIR"/*_identifiers > "$DATADIR/refseq_identifiers.txt"
 

@@ -1,0 +1,230 @@
+#!/bin/sh
+
+# Copyright (C) 2011, 2012 Ian Donaldson <ian.donaldson@biotek.uio.no>
+# Original author: Paul Boddie <paul.boddie@biotek.uio.no>
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 3 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+if [ -e "irdata-config" ]; then
+    . "$PWD/irdata-config"
+elif [ -e "scripts/irdata-config" ]; then
+    . 'scripts/irdata-config'
+else
+    . 'irdata-config'
+fi
+
+if [ "$1" = '--help' ]; then
+    cat 1>&2 <<EOF
+Usage: $PROGNAME [ --show-location | --check ] [ -v | --verbose ] ( --all | <source>... )
+
+Download data from the different sources, or if the --check option is specified
+check whether a download needs to be performed. Note that this check is only
+cursory and merely looks to see if data directories are populated with suitably
+named files; an actual download operation is required to test whether the files
+for a data source are complete.
+
+The sources are configured to be the following when --all is specified:
+
+$ALLSOURCES
+
+Sources that are to be excluded are defined to be the following:
+
+$EXCLUDEDSOURCES
+
+If --show-location is specified, the location from which data will be obtained
+for a data source is shown, and the program will not perform any other
+operation.
+EOF
+    exit 1
+fi
+
+if [ "$1" = '--show-location' ]; then
+    SHOW_LOCATION=$1
+    shift 1
+fi
+
+if [ "$1" = '--check' ]; then
+    CHECK_ONLY=$1
+    shift 1
+fi
+
+if [ "$1" = '-v' ] || [ "$1" = '--verbose' ]; then
+    VERBOSE=$1
+    shift 1
+fi
+
+SOURCES=$*
+
+if [ "$SOURCES" = '--all' ]; then
+    SOURCES=$ALLSOURCES
+elif [ ! "$SOURCES" ]; then
+    echo "$PROGNAME: No sources specified." 1>&2
+    exit 1
+fi
+
+# Download data.
+
+FAILED=
+
+for SOURCE in $SOURCES; do
+
+    # Skip excluded sources.
+
+    if isin "$SOURCE" $EXCLUDEDSOURCES ; then
+        continue
+    fi
+
+    # Determine how to download the source data.
+
+    eval DOWNLOAD_SCRIPT='$'"$SOURCE"_DOWNLOAD_SCRIPT
+    eval RELEASE_URL='$'"$SOURCE"_RELEASE_URL
+    eval DOWNLOAD_FILES='$'"$SOURCE"_DOWNLOAD_FILES
+    eval SOURCEDIR='$'"$SOURCE"_DIR_NAME
+
+    DATADIR="$DATA/$SOURCEDIR"
+
+    # Either show the location of the data and proceed no further.
+
+    if [ "$SHOW_LOCATION" ]; then
+        TAB=`printf '\t'`
+        if [ "$DOWNLOAD_SCRIPT" ]; then
+            echo "$SOURCE: Script${TAB}$DOWNLOAD_SCRIPT"
+        elif [ "$DOWNLOAD_FILES" ]; then
+            echo "$SOURCE: URL${TAB}$RELEASE_URL"
+        fi
+        continue
+
+    # Or check the presence of the data.
+
+    elif [ "$CHECK_ONLY" ]; then
+        echo "$PROGNAME: Checking $SOURCE..." 1>&2
+
+    # Or download the data.
+
+    else
+        echo "$PROGNAME: Downloading $SOURCE..." 1>&2
+        if [ ! -e "$DATADIR" ]; then
+            mkdir "$DATADIR"
+        fi
+    fi
+
+    # Some resources require extra work because they do not just publish files,
+    # even though they could easily do so.
+
+    if [ "$DOWNLOAD_SCRIPT" ]; then
+        if ! "$DOWNLOAD_SCRIPT" $CHECK_ONLY $VERBOSE "$DATADIR" ; then
+            echo "$PROGNAME: Did not download files using the script for source: $SOURCE" 1>&2
+            FAILED="${FAILED}${FAILED:+ }$SOURCE"
+        fi
+
+    # Most resources just publish files.
+
+    elif [ "$DOWNLOAD_FILES" ]; then
+        FAILED_FILES=0
+
+        for DOWNLOAD in $DOWNLOAD_FILES; do
+            DOWNLOADED="$DATADIR/$DOWNLOAD"
+
+            URL="${RELEASE_URL}$DOWNLOAD"
+
+            if [ "$VERBOSE" ]; then
+                echo "$PROGNAME: URL: $URL" 1>&2
+            fi
+
+            # Treat the URL as a path and see what the downloaded filename would be.
+
+            URLFILE=`basename "$URL"`
+
+            # Here, DOWNLOAD may be a pattern, thus making DOWNLOADED also a pattern.
+
+            if [ "$CHECK_ONLY" ]; then
+
+                # Check any pattern to see if it expanded.
+
+                for DOWNLOADEDFILE in $DOWNLOADED; do
+
+                    # For single files, the download variables will be the same.
+                    # For patterns, if files do not exist, the variables will also be the same.
+                    # For patterns, if files do exist, the variables will be different.
+
+                    if [ "$DOWNLOADEDFILE" = "$DOWNLOADED" ] && [ ! -e "$DOWNLOADEDFILE" ]; then
+                        echo "$PROGNAME: Want to download file: $DOWNLOAD" 1>&2
+
+                    # Output available files, either single files or patterns.
+
+                    else
+                        echo "$DOWNLOADED"
+                    fi
+
+                    break
+                done
+
+            else
+                echo "$PROGNAME: Downloading file: $DOWNLOAD" 1>&2
+
+                # Get downloads, counting failures.
+                # File URLs are treated as local files.
+
+                if [ "${URL#file://}" != "$URL" ]; then
+
+                    if ! cp ${URL#file://} "$DATADIR" ; then
+                        echo "$PROGNAME: Did not copy local file: $DOWNLOAD" 1>&2
+                        FAILED_FILES=$(($FAILED_FILES+1))
+                        continue
+                    fi
+
+                # All other URLs are accessed using wget.
+
+                elif ! wget --timestamping --retr-symlinks -w "$WGET_WAIT" -N -P "$DATADIR" "$RELEASE_URL" ; then
+			echo "$RELEASE_URL"
+                    echo "$PROGNAME: Did not download file: $DOWNLOAD" 1>&2
+                    FAILED_FILES=$(($FAILED_FILES+1))
+                    continue
+                fi
+
+                # If the downloaded filename is different from the actual filename,
+                # ensure that a symbolic link is made.
+
+                # Here, if DOWNLOAD is a pattern, URLFILE will probably also be the
+                # same pattern.
+
+                if [ "$DOWNLOAD" != "$URLFILE" ]; then
+                    if [ ! -e "$DOWNLOADED" ]; then
+                        ln -s "$URLFILE" "$DOWNLOADED"
+                        echo "$DOWNLOADED"
+                    fi
+                else
+                    echo "$DOWNLOADED"
+                fi
+            fi
+        done
+
+        # Add the source to the failed list, inserting a space after any
+        # existing sources.
+
+        if [ "$FAILED_FILES" != '0' ]; then
+            echo "$PROGNAME: Did not download $FAILED_FILES files for source: $SOURCE" 1>&2
+            FAILED="${FAILED}${FAILED:+ }$SOURCE"
+        fi
+
+    # If no files or script are defined for a source, the source is ignored.
+
+    else
+        echo "$PROGNAME: No download files defined for $SOURCE. Continuing without error." 1>&2
+    fi
+done
+
+if [ "$FAILED" ]; then
+    echo "$PROGNAME: The following sources failed: $FAILED" 1>&2
+    exit 1
+fi

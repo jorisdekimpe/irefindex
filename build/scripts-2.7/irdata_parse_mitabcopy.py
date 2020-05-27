@@ -246,10 +246,9 @@ class Parser:
         for key in list_fields:
             data[key] = pipe_2_list(data[key], return_na = True)
         
-    
-         
-         
-
+        print >>sys.stderr, "data: %s" % data
+        print >>sys.stderr, "typeA: %s" % data["typeA"] 
+        print >>sys.stderr, "typeB: %s" % data["typeB"] 
         # Check that line is suitable for parsing otherwise skip to next line
         # Omit non protein-protein interactions and other records where A or B or taxid are ill-defined
         if data["uidA"] == "-" or data["uidB"] == "-":

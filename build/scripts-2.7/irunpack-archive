@@ -84,6 +84,7 @@ while [ "$*" ]; do
     elif [ "${ARCHIVENAME#*.}" = "tar.gz" ]; then
         tar zxkf "$ARCHIVE" -C "$ARCHIVEPATH"
     elif [ "$INCLUDE_GZIP" ] && [ "${ARCHIVENAME##*.}" = "gz" ]; then
-        gunzip "$ARCHIVE"
+	echo "gunzip" 1>&2     
+        gunzip -c "$ARCHIVE"
     fi
 done

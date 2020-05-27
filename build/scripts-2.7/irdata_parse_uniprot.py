@@ -126,9 +126,10 @@ class Parser:
         "See: http://web.expasy.org/docs/userman.html#OX_line"
 
         code, rest = line
-        key, value = rest.rstrip(";").split("=")
+        key, value = rest.rstrip(";").split(" ")[0].split("=")
         if key == "NCBI_TaxID":
-            return value
+            #taxid = value.split(" ") #separate possible extra annotation
+            return value 
         else:
             return None
 
@@ -279,7 +280,7 @@ class Parser:
 if __name__ == "__main__":
     from irdata.cmd import get_progname
     from os.path import extsep, join, split, splitext
-    import sys, gzip
+    import sys, gzip, re
 
     progname = get_progname()
 

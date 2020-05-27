@@ -145,7 +145,7 @@ fi
 if [ "$MAKE_REPORTS" ]; then
 
     # Make a tidied up manifest report.
-
+    echo "$REPORTS $DATA $PSQL_OPTIONS" 1>&2
     if ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$REPORTS/manifest.sql" "$DATA" $PSQL_OPTIONS ; then
         echo "$PROGNAME: Could not report manifest information." 1>&2
         exit 1
@@ -289,11 +289,11 @@ if [ "$BUILD" ]; then
     fi
 
     # Import integer identifiers from a previous release.
-
-    if [ -e "$DATA/rig2rigid" ] && [ -e "$DATA/rog2rogid" ] && ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_integer_identifiers.sql" "$DATA" $PSQL_OPTIONS ; then
-        echo "$PROGNAME: Could not import integer identifiers from the previous release." 1>&2
-        exit 1
-    fi
+# has been executed earlier, temporary in comments
+#    if [ -e "$DATA/rig2rigid" ] && [ -e "$DATA/rog2rogid" ] && ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_integer_identifiers.sql" "$DATA" $PSQL_OPTIONS ; then
+#        echo "$PROGNAME: Could not import integer identifiers from the previous release." 1>&2
+#        exit 1
+#    fi
 fi
 
 if [ "$MAKE_OUTPUT" ]; then

@@ -228,6 +228,7 @@ class Parser:
                     continue
                 #parse all other lines
                  
+                 
                 self.parse_line(line)
                 line = f.readline()
                 self.file_line_no += 1
@@ -241,14 +242,10 @@ class Parser:
 
         data = dict(zip(all_fields, line.strip().split("\t")))
         
-        print >>sys.stderr, "line: %s" % line
+
         # Convert all pipe-delimited list values into lists.
         for key in list_fields:
             data[key] = pipe_2_list(data[key], return_na = True)
-        
-    
-         
-         
 
         # Check that line is suitable for parsing otherwise skip to next line
         # Omit non protein-protein interactions and other records where A or B or taxid are ill-defined
@@ -259,9 +256,10 @@ class Parser:
         if data["taxA"] == "-" or  data["taxB"] == "-":
             return
         if file_format == "mitab26" or file_format == "mitab27":
-            if data["typeA"] != 'psi-mi:"MI:0326"(protein)' or  data["typeB"] != 'psi-mi:"MI:0326"(protein)':
+            if data["typeA"] != 'psi-mi:\"MI:0326\"(protein)' or  data["typeB"] != 'psi-mi:"MI:0326"(protein)':
                 return
-        
+        #print >>sys.stderr, "line: %s" % line 
+
         # Fix aliases.
         for key in ("aliasA", "aliasB"):
             data[key] = map(fix_alias, data[key])
@@ -271,7 +269,7 @@ class Parser:
             print >>sys.stderr, "key: %s" % key 
             print >>sys.stderr, "data: %s" % data[key] 
             data[key] = map(fix_vocabulary_term, data[key])
-            print >>sys.stderr, "data full: %s" % data 
+            print >>sys.stderr, "data: %s" % data 
         '''
         Detect multi-line interactions representing protein complexes.
         Distinct interaction records are distinguished based on there being
@@ -528,20 +526,6 @@ class iRefIndexWriter(Writer):
                 for entry, s in enumerate(data[key]):
                     prefix, value = colon_2_tuple(s)
                     if prefix == "pubmed":
-                        if value.isdigit():
-                            
-                            self.write_line(self.files[key], (self.source, self.filename, data["line"], get_interaction_id(data), value, entry))
-                        if "doi" in value:
-                            ##fixing issues with VIRUSHOST example pubmed:https(//doi.org/...)
-                            value = value.rstrip(")")
-                            value = value.lstrip("https(//doi.org/")
-                            self.write_line(self.files[key], (self.source, self.filename, data["line"], get_interaction_id(data), value, entry))
-                       
-                        else:
-                            print >> sys.stderr, " %s is not a pubmedID or DOI: citation suppressed" % (value)
-                            #value = '-'
-                            #self.write_line(self.files[key], (self.source, self.filename, data["line"], get_interaction_id(data), value, entry))
-                    if (prefix.lower()  == "doi"):
                         self.write_line(self.files[key], (self.source, self.filename, data["line"], get_interaction_id(data), value, entry))
 
             for key in ("interactionIdentifiers",):
@@ -613,6 +597,8 @@ def fix_vocabulary_term(s):
     '''
     for regexp in term_regexps:
         match = regexp.match(s)
+        print >>sys.stderr, "match: %s" % match.group("term")  
+        print >>sys.stderr, "match: %s" % match.group("description")  
 
         if match:
             return "%s(%s)" % (match.group("term"), match.group("description"))
@@ -690,14 +676,17 @@ def detect_file_format(filenames):
         opener = gzip.open
     else:
         opener = open
+    print >>sys.stderr, "ik ben echt hier %s" % filename
     f = opener(filename)
 
     try:
         line = f.readline()
+        print >>sys.stderr, "line:%s" % line
         #skip over comment lines
         if line.startswith("#"):
             line = f.readline()
         data = line.strip().split("\t")
+        print >>sys.stderr, "line:%s" % line
         if len(data) == len(mitab25_fields):
             return("mitab25")
         if len(data) == len(mitab26_fields):
@@ -743,6 +732,8 @@ if __name__ == "__main__":
         source = sys.argv[1]
         directory = sys.argv[2]
         filenames = sys.argv[3:]
+        print >>sys.stderr, "filenames: %s" % filenames[0]
+        print >>sys.stderr, "directory: %s" % directory
     except IndexError:
         print >>sys.stderr, "Usage: %s <source> <output data directory> <filename>..." % progname
         sys.exit(1)
@@ -750,6 +741,7 @@ if __name__ == "__main__":
     try:
         # set up based on type of file to be parsed.
         file_format = detect_file_format(filenames)
+        print >>sys.stderr, "file format: %s" % file_format
         if file_format == "unknown":
             sys.exit(1)
         all_fields = get_all_fields(file_format)
