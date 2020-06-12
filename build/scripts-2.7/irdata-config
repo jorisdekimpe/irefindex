@@ -117,15 +117,16 @@ APID_IMPORT_TEMPLATE='import_mitab.sql'
 
 ############################################################
 #A_Thaliana
-ATHALIANA_MIRROR='ftp://ftp.ensemblgenomes.org'
-ATHALIANA_RELEASE_URL="$ATHALIANA_MIRROR/pub/plants/release-46/tsv/arabidopsis_thaliana/"
-ATHALIANA_DOWNLOAD_FILES='Arabidopsis_thaliana.TAIR*.uniprot.tsv'
+#problems in import with primary key
+#ATHALIANA_MIRROR='ftp://ftp.ensemblgenomes.org'
+#ATHALIANA_RELEASE_URL="$ATHALIANA_MIRROR/pub/plants/release-46/tsv/arabidopsis_thaliana/"
+#ATHALIANA_DOWNLOAD_FILES='Arabidopsis_thaliana.TAIR*.uniprot.tsv'
 
-ATHALIANA_DIR_NAME="ATHALIANA"
-ATHALIANA_OTHER_FILE_PATTERN='*.tsv'
-ATHALIANA_PARSER='irdata_parse_A_thaliana.sh'
+#ATHALIANA_DIR_NAME="ATHALIANA"
+#ATHALIANA_OTHER_FILE_PATTERN='*.tsv'
+#ATHALIANA_PARSER='irdata_parse_A_thaliana.sh'
 #which import template?
-ATHALIANA_SCHEMA='athaliana'
+#ATHALIANA_SCHEMA='athaliana'
 ############################################################
 #BAR
 BAR_MIRROR='http://bar.utoronto.ca:9090'

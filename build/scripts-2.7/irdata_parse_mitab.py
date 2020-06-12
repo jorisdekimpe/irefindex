@@ -527,11 +527,16 @@ class iRefIndexWriter(Writer):
             for key in ("pmids",):
                 for entry, s in enumerate(data[key]):
                     prefix, value = colon_2_tuple(s)
+                    print >> sys.stderr, " %s %s" % (prefix, value)
                     if prefix == "pubmed":
+                        ##INNATEDB fix, space after some pubmedID
+                        if " " in value:
+                            value = value.strip(" ")
+                            
                         if value.isdigit():
                             
                             self.write_line(self.files[key], (self.source, self.filename, data["line"], get_interaction_id(data), value, entry))
-                        if "doi" in value:
+                        elif "doi" in value:
                             ##fixing issues with VIRUSHOST example pubmed:https(//doi.org/...)
                             value = value.rstrip(")")
                             value = value.lstrip("https(//doi.org/")

@@ -155,10 +155,13 @@ class Parser:
         if len(version_plus_gi) > 1:
             version, gi = version_plus_gi[:2]
             record["VERSION"] = version
+            if ':' in gi:
+                record["GI"] = gi.split(":")[1] # strip "GI:" from the identifier
         else:
-            gi = version_plus_gi[0]
-        record["GI"] = gi.split(":")[1] # strip "GI:" from the identifier
-
+            version = version_plus_gi[0]
+        # in the current refseq files no GI in line VERSION
+        #record["GI"] = gi.split(":")[1] # strip "GI:" from the identifier
+        record["VERSION"]= version
     handlers = {
         "LOCUS"     : parse_locus,
         "ACCESSION" : parse_accession,
@@ -192,7 +195,7 @@ class Parser:
                 if not record.has_key(key):
                     record[key] = r"\N"
 
-            self.f_main.write("%(ACCESSION)s\t%(VERSION)s\t%(GI)s\t%(TAXID)s\t%(SEQUENCE)s\n" % record)
+            self.f_main.write("%(ACCESSION)s\t%(VERSION)s\t%(TAXID)s\t%(SEQUENCE)s\n" % record)
             if record.has_key("PUBMED"):
                 for pos, pmid in enumerate(record["PUBMED"]):
                     self.f_identifiers.write("%s\tPubMed\t%s\t%s\n" % (record["ACCESSION"], pmid, pos))

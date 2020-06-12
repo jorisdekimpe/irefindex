@@ -265,40 +265,40 @@ fi
 # Preparation of output resources.
 
 if [ "$BUILD" ]; then
-
+   # done in separate script 
     # Make convenient representations for other entity types.
 
-    if ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_interactions.sql" $PSQL_OPTIONS ; then
-        echo "$PROGNAME: Could not build interaction information from the imported data." 1>&2
-        exit 1
-    fi
+   # if ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_interactions.sql" $PSQL_OPTIONS ; then
+   #     echo "$PROGNAME: Could not build interaction information from the imported data." 1>&2
+   #     exit 1
+   # fi
 
-    if ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_experiments.sql" $PSQL_OPTIONS ; then
-        echo "$PROGNAME: Could not build experiment information from the imported data." 1>&2
-        exit 1
-    fi
+   # if ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_experiments.sql" $PSQL_OPTIONS ; then
+   #     echo "$PROGNAME: Could not build experiment information from the imported data." 1>&2
+   #     exit 1
+   # fi
 
-    if ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_participants.sql" $PSQL_OPTIONS ; then
-        echo "$PROGNAME: Could not build participant information from the imported data." 1>&2
-        exit 1
-    fi
+   # if ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_participants.sql" $PSQL_OPTIONS ; then
+   #     echo "$PROGNAME: Could not build participant information from the imported data." 1>&2
+   #     exit 1
+   # fi
 
-    if ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_confidence.sql" $PSQL_OPTIONS ; then
-        echo "$PROGNAME: Could not generate confidence score information." 1>&2
-        exit 1
-    fi
+   # if ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_confidence.sql" $PSQL_OPTIONS ; then
+   #     echo "$PROGNAME: Could not generate confidence score information." 1>&2
+   #     exit 1
+   # fi
 
     # Import integer identifiers from a previous release.
-# has been executed earlier, temporary in comments
-#    if [ -e "$DATA/rig2rigid" ] && [ -e "$DATA/rog2rogid" ] && ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_integer_identifiers.sql" "$DATA" $PSQL_OPTIONS ; then
-#        echo "$PROGNAME: Could not import integer identifiers from the previous release." 1>&2
-#        exit 1
-#    fi
+
+    if [ -e "$DATA/rig2rigid" ] && [ -e "$DATA/rog2rogid" ] && ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_integer_identifiers.sql" "$DATA" $PSQL_OPTIONS ; then
+        echo "$PROGNAME: Could not import integer identifiers from the previous release." 1>&2
+        exit 1
+    fi
 fi
 
 if [ "$MAKE_OUTPUT" ]; then
 
     # Make output files.
 
-    "$SCRIPTS/iroutput" --mitab --irefscape --mapping --irefweb
+    "$SCRIPTS/iroutput" --mitab --mapping 
 fi

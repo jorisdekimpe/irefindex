@@ -1,0 +1,88 @@
+#!/bin/sh
+
+# Copyright (C) 2012 Ian Donaldson <ian.donaldson@biotek.uio.no>
+# Original author: Paul Boddie <paul.boddie@biotek.uio.no>
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 3 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+if [ -e "irdata-config" ]; then
+    . "$PWD/irdata-config"
+elif [ -e "scripts/irdata-config" ]; then
+    . 'scripts/irdata-config'
+else
+    . 'irdata-config'
+fi
+
+if [ "$1" = '--help' ] || [ ! "$1" ]; then
+    cat 1>&2 <<EOF
+Usage: $PROGNAME [ --build [ --no-download ] ] [ --reports ] [ --output ]
+
+Build interactor and assignment information from the imported source data.
+EOF
+    exit 1
+fi
+
+if [ "$1" = '--build' ]; then
+    BUILD=$1
+    shift 1
+else
+    BUILD=
+fi
+
+if [ "$1" = '--no-download' ]; then
+    MISSING_OPTIONS='--import'
+    shift 1
+else
+    MISSING_OPTIONS='--all'
+fi
+
+if [ "$1" = '--reports' ]; then
+    MAKE_REPORTS=$1
+    shift 1
+else
+    MAKE_REPORTS=
+fi
+
+if [ "$1" = '--output' ]; then
+    MAKE_OUTPUT=$1
+    shift 1
+else
+    MAKE_OUTPUT=
+fi
+
+# Preparation of output resources.
+
+if [ "$BUILD" ]; then
+
+    # Make convenient representations for other entity types.
+
+    if ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_interactions.sql" $PSQL_OPTIONS ; then
+        echo "$PROGNAME: Could not build interaction information from the imported data." 1>&2
+        exit 1
+    fi
+
+    if ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_experiments.sql" $PSQL_OPTIONS ; then
+        echo "$PROGNAME: Could not build experiment information from the imported data." 1>&2
+        exit 1
+    fi
+
+    if ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_participants.sql" $PSQL_OPTIONS ; then
+        echo "$PROGNAME: Could not build participant information from the imported data." 1>&2
+        exit 1
+    fi
+
+    if ! "$TOOLS/irdata_database_action.py" "$DATABASE" "$SQL/import_irefindex_confidence.sql" $PSQL_OPTIONS ; then
+        echo "$PROGNAME: Could not generate confidence score information." 1>&2
+        exit 1
+    fi
+fi
