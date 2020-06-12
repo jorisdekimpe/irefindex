@@ -489,7 +489,7 @@ create temporary table tmp_mitab_all as
              else array_to_string(
                 array_cat(
                     case when aliasA.aliases is null or array_length(aliasA.aliases, 1) = 0 then cast(array[] as varchar[])
-                         else aliasA.aliases[1:4]
+                         else aliasA.aliases[1:6]
                     end,
                     array[
                         'crogid:' || crogidA.crogid,
@@ -503,7 +503,7 @@ create temporary table tmp_mitab_all as
         array_to_string(
             array_cat(
                 case when aliasB.aliases is null or array_length(aliasB.aliases, 1) = 0 then cast(array[] as varchar[])
-                     else aliasB.aliases[1:4]
+                     else aliasB.aliases[1:6]
                 end,
                 array[
                     'crogid:' || crogidB.crogid,

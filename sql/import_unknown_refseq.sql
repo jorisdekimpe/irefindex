@@ -23,7 +23,7 @@ begin;
 create temporary table tmp_refseq_proteins (
     accession varchar,
     version varchar,
-    gi integer not null,
+--    gi integer not null,
     taxid integer,
     actualsequence varchar not null,
     "sequence" varchar not null,
@@ -44,13 +44,8 @@ analyze tmp_refseq_proteins;
 
 \copy tmp_refseq_identifiers from '<directory>/refseq_identifiers.txt'
 
-create index tmp_refseq_proteins_gi on tmp_refseq_proteins(gi);
 create index tmp_refseq_identifiers_accession on tmp_refseq_identifiers(accession);
-
-analyze tmp_refseq_proteins;
 analyze tmp_refseq_identifiers;
-
-
 
 -- Augment the existing tables.
 
@@ -59,11 +54,11 @@ insert into refseq_proteins
         case when position('.' in T.version) <> 0 then
             cast(substring(T.version from position('.' in T.version) + 1) as integer)
         else null end as vnumber,
-        T.gi, T.taxid, T.sequence, T.length, true as missing
+        T.taxid, T.sequence, T.length, true as missing
     from tmp_refseq_proteins as T
     left outer join refseq_proteins as P
-        on T.gi = P.gi
-    where P.gi is null;
+        on T.accession = P.accession
+    where P.accession is null;
 
 analyze refseq_proteins;
 
@@ -132,14 +127,16 @@ create temporary table tmp_irefindex_sequences_updated as
     select 'refseq' as dblabel, accession as refvalue,
         taxid as reftaxid, sequence as refsequence, null as refdate
     from tmp_refseq_proteins as P
-    where accession is not null
-    union all
+    where accession is not null;
+    
+    -- obsolete
+    --union all
 
     -- Completely new protein records referenced using GenBank identifiers.
 
-    select 'genbank_protein_gi' as dblabel, cast(gi as varchar) as refvalue,
-        taxid as reftaxid, sequence as refsequence, null as refdate
-    from tmp_refseq_proteins;
+    --select 'genbank_protein_gi' as dblabel, cast(gi as varchar) as refvalue,
+    --    taxid as reftaxid, sequence as refsequence, null as refdate
+    --from tmp_refseq_proteins;
 
 create index tmp_irefindex_sequences_updated_index on tmp_irefindex_sequences_updated(dblabel, refvalue);
 analyze tmp_irefindex_sequences_updated;
@@ -180,7 +177,7 @@ create temporary table tmp_plain as
     inner join tmp_irefindex_sequences as P
         on X.dblabel = P.dblabel
         and X.refvalue = P.refvalue
-    where X.dblabel in ('refseq', 'genbank_protein_gi');
+    where X.dblabel = 'refseq';
 
 -- RefSeq accession matches discarding versioning.
 

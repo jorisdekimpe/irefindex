@@ -27,6 +27,7 @@ insert into xml_xref_all_experiments
         reftype,
         case when dblabel in ('Pub-Med', 'PUBMED', 'Pubmed', 'PubMed') then 'pubmed'
              when dblabel in ('MI', 'psimi', 'PSI-MI') then 'psi-mi'
+	     when dblabel in ('doi', 'DOI') then 'doi'
              else dblabel
         end as dblabel,
 
@@ -59,6 +60,13 @@ insert into xml_xref_experiment_pubmed
     from xml_xref_all_experiments
     where property = 'bibref' and dblabel = 'pubmed'
         and refvalue ~ E'^[[:digit:]]\+$'
+        and refvalue <> '0'
+    group by source, filename, entry, experimentid, refvalue
+    union all
+	select source, filename, entry, experimentid, min(reftype) as reftype, refvalue
+    from xml_xref_all_experiments
+    where property = 'bibref' and dblabel = 'doi'
+        and refvalue ~ '\d+.\d+/[a-zA-Z0-9\.\:]'
         and refvalue <> '0'
     group by source, filename, entry, experimentid, refvalue;
 
